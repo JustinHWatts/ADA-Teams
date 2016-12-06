@@ -1,0 +1,249 @@
+-- Name: Justin Watts
+-- Date: September 22, 2015
+-- Course: ITEC 320 Procedural Analysis and Design
+
+-- Purpose: This program processes a set of three softball teams and their runs
+--    scored over the course of one or more games of nine innings.
+-- Input is a set of three team names followed by the order in which the teams
+--    play and the runs scored in each inning respective to the team playing.
+-- Each set begins with a positive integer which specifies the number of
+--    datasets being processed.
+-- Each set is made up of three team names, two lines showing the order in
+--    which the teams play represented by the first three characters of each
+--    line, and two lines corresponding to the order displayed above showing
+--    the total runs scored by the teams playing in those innings.
+-- Each dataset ends at the input of "000".
+-- Output consists of the total scores of each team playing followed by the
+--    name of each respective team. The total runs scored altogether are
+--    displayed below.
+-- Sample input:
+--    1
+--    name 1
+--    names 2
+--    name 3
+--    123
+--    231
+--    0 1 0 2 2 3 1 2 1
+--    3 1 2 1 0 0 1 3 2
+--    000
+-- Corresponding output:
+--     7 name 1
+--    13 names 2
+--     5 name 3
+--    25 Total
+
+pragma Ada_2012;
+with Ada.Text_Io; use Ada.Text_Io;
+with Ada.Integer_Text_Io; use Ada.Integer_Text_Io;
+with Ada.Exceptions; use Ada.Exceptions;
+
+---------------------------------------------------------------
+-- Purpose: Process a file of softball teams with their scores
+---------------------------------------------------------------
+procedure Teams is
+   type RunCounts is array(1 .. 9) of Natural;     -- Array that Contains Runs
+   subtype TeamNum is Character range '1' .. '3';
+
+---------------------------------------------------------------
+-- Purpose: Input scores as naturals into an array
+-- Postcondition: Return the resulting array filled with runs
+---------------------------------------------------------------
+
+   function InputArray return RunCounts is
+      Current: Natural;                            -- Input of Runs
+      A: RunCounts;                                -- Array Containing Runs
+      Invalid_Data: Exception;
+   begin
+      for I in 1 .. 9 loop
+         Excep1:
+         begin
+            Get (Current);
+
+            exception
+            when Data_Error =>
+               Put_Line ("Must enter a number of runs");
+               raise Invalid_Data;
+            when Constraint_Error =>
+               Put_Line ("Number must be nonnegative and less than 1,000");
+               raise Invalid_Data;
+
+         end Excep1;
+         A(I) := Current;
+      end loop;
+
+      return A;
+
+   end InputArray;
+
+   N: Natural;                                     -- Number of Datasets
+   TeamOne, TeamTwo, TeamThree: String(1 .. 20);   -- Team Names
+   LineupOne, LineupTwo: String(1 .. 4);           -- Team Play Order
+   LenOne, LenTwo, LenThree: Natural;              -- Length of Strings
+   LenAltOne, LenAltTwo: Natural;                  -- Length of Strings
+   RunsOne, RunsTwo: RunCounts;                    -- Arrays of Runs
+   OneTotal, TwoTotal, ThreeTotal: Integer;        -- Team Run Totals
+   OverallTotal: Integer;                          -- Total of All Runs
+   Invalid_Data: Exception;
+begin
+   while not End_Of_File loop
+      Excep1:
+      begin
+         Get (N);
+
+         exception
+         when Data_Error =>
+            Put_Line ("Must enter a number of datasets");
+            raise Invalid_Data;
+         when Constraint_Error =>
+            Put_Line ("Number must be positive and less than 1,000");
+            raise Invalid_Data;
+
+      end Excep1;
+
+      Skip_Line;
+
+      for I in 1 .. N loop
+         OneTotal := 0;                            -- Reset Values
+         TwoTotal := 0;
+         ThreeTotal := 0;
+         OverallTotal := 0;
+         TeamOne := (others => ' ');
+         TeamTwo := (others => ' ');
+         TeamThree := (others => ' ');
+         RunsOne := (others => 0);
+         RunsTwo := (others => 0);
+
+         Get_Line (TeamOne, LenOne);
+         Get_Line (TeamTwo, LenTwo);
+         Get_Line (TeamThree, LenThree);
+         Get_Line (LineupOne, LenAltOne);
+
+         for I in 1 .. 3 loop
+            if LineupOne(I) not in TeamNum then
+               Put_Line ("Number must be in the range of 1 to 3");
+               raise Invalid_Data;
+            end if;
+         end loop;
+
+         while LineupOne(1 .. LenAltOne) /= "000" loop
+            Get_Line (LineupTwo, LenAltTwo);
+
+            for I in 1 .. 3 loop
+               if LineupTwo(I) not in TeamNum then
+                  Put_Line ("Number must be in the range of 1 to 3");
+                  raise Invalid_Data;
+               end if;
+               if LineupOne(I) = LineupTwo(I) then
+                  Put_Line ("Teams cannot play themselves!");
+                  raise Invalid_Data;
+               end if;
+            end loop;
+
+            RunsOne := InputArray;
+            RunsTwo := InputArray;
+
+            Skip_Line;
+
+            for I in 1 .. 9 loop
+               case I is
+                  when 1 .. 3 =>
+                     if LineupOne(1) = '1' then
+                        OneTotal := OneTotal + RunsOne(I);
+                     elsif LineupOne(1) = '2' then
+                        TwoTotal := TwoTotal + RunsOne(I);
+                     elsif LineupOne(1) = '3' then
+                        ThreeTotal := ThreeTotal + RunsOne(I);
+                     end if;
+                  when 4 .. 6 =>
+                     if LineupOne(2) = '1' then
+                        OneTotal := OneTotal + RunsOne(I);
+                     elsif LineupOne(2) = '2' then
+                        TwoTotal := TwoTotal + RunsOne(I);
+                     elsif LineupOne(2) = '3' then
+                        ThreeTotal := ThreeTotal + RunsOne(I);
+                     end if;
+                  when 7 .. 9 =>
+                     if LineupOne(3) = '1' then
+                        OneTotal := OneTotal + RunsOne(I);
+                     elsif LineupOne(3) = '2' then
+                        TwoTotal := TwoTotal + RunsOne(I);
+                     elsif LineupOne(3) = '3' then
+                        ThreeTotal := ThreeTotal + RunsOne(I);
+                     end if;
+
+               end case;
+
+            end loop;
+
+            for I in 1 .. 9 loop
+               case I is
+                  when 1 .. 3 =>
+                     if LineupTwo(1) = '1' then
+                        OneTotal := OneTotal + RunsTwo(I);
+                     elsif LineupTwo(1) = '2' then
+                        TwoTotal := TwoTotal + RunsTwo(I);
+                     elsif LineupTwo(1) = '3' then
+                        ThreeTotal := ThreeTotal + RunsTwo(I);
+                     end if;
+                  when 4 .. 6 =>
+                     if LineupTwo(2) = '1' then
+                        OneTotal := OneTotal + RunsTwo(I);
+                     elsif LineupTwo(2) = '2' then
+                        TwoTotal := TwoTotal + RunsTwo(I);
+                     elsif LineupTwo(2) = '3' then
+                        ThreeTotal := ThreeTotal + RunsTwo(I);
+                     end if;
+                  when 7 .. 9 =>
+                     if LineupTwo(3) = '1' then
+                        OneTotal := OneTotal + RunsTwo(I);
+                     elsif LineupTwo(3) = '2' then
+                        TwoTotal := TwoTotal + RunsTwo(I);
+                     elsif LineupTwo(3) = '3' then
+                        ThreeTotal := ThreeTotal + RunsTwo(I);
+                     end if;
+
+               end case;
+
+            end loop;
+
+            Get_Line (LineupOne, LenAltOne);
+
+            if LineupOne(1 .. LenAltOne) /= "000" then
+               for I in 1 .. 3 loop
+                  if LineupOne(I) not in TeamNum then
+                     Put_Line ("Number must be in the range of 1 to 3");
+                     raise Invalid_Data;
+                  end if;
+               end loop;
+            end if;
+
+         end loop;
+
+         OverallTotal := OneTotal + TwoTotal + ThreeTotal;
+         Put (Item => OneTotal, Width => 4);
+         Put_Line (" " & TeamOne(1 .. LenOne));
+         Put (Item => TwoTotal, Width => 4);
+         Put_Line (" " & TeamTwo(1 .. LenTwo));
+         Put (Item => ThreeTotal, Width => 4);
+         Put_Line (" " & TeamThree(1 .. LenThree));
+         Put (Item => OverallTotal, Width => 4);
+         Put_Line (" Total");
+         New_Line;
+
+      end loop;
+
+   end loop;
+
+   exception
+      when Invalid_Data =>
+         Put ("Program halted because of invalid data.");
+      when Data_Error =>
+         Put ("Invalid String!");
+      when End_Error =>
+         Put_Line ("Premature end of file!");
+      when E: others =>
+         Put ("Something unexpected happened!"); New_Line;
+         Put (Exception_Name(E));
+         Put (Exception_Message(E));
+
+end Teams;

@@ -1,0 +1,32 @@
+-- Name: Justin Watts
+-- Date: September 22, 2015
+-- Course: ITEC 320 Procedural Analysis and Design
+
+-- Purpose: This program processes data sets and organizes them through
+--    displaying statistics.
+-- Input is a sequence of positive integers organized into sets until
+--    end of file.
+-- Each set begins with a positive integer which specifies the number
+--   of integers within the set.
+-- Each set is made up of one, two, or three distinct numbers.
+-- Output consists of statistics on the set(s) of numbers including
+--    the set number, the distinct numbers, the frequency of each
+--    number, the percentage of each number, and the number that
+--    appears the most frequently accompanied by the dataset in
+--    which it appears.
+-- Input is assumed to be valid.
+-- Sample input:
+--   3
+--   49 45 49
+-- Corresponding output:
+--   Dataset:  1
+--   Number 1:     49     2    66.7%
+--   Number 2:     45     1    33.3%
+--   Total:               3
+
+--   Most frequent: 49
+--   From dataset: 1
+
+with Ada.Text_Io; use Ada.Text_Io;
+with Ada.Integer_Text_Io; use Ada.Integer_Text_Io;
+with Ada.Float_Text_Io; use Ada.Float_Text_Io;
